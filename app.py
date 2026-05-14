@@ -1,108 +1,75 @@
-"""
-Application routes
-"""
-
 from flask import Flask, jsonify, request
-from service.models import Account, init_db
-from service import config
-
-######################################################################
-# Create Flask app
-######################################################################
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    config.SQLALCHEMY_DATABASE_URI
-)
-
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = (
-    config.SQLALCHEMY_TRACK_MODIFICATIONS
-)
-
-app.config["SECRET_KEY"] = config.SECRET_KEY
-
-######################################################################
-# Initialize Database
-######################################################################
-
-init_db(app)
-
-######################################################################
-# ROUTES
-######################################################################
+# In-memory database
+accounts = {}
+next_id = 1
 
 
 @app.route("/accounts", methods=["POST"])
 def create_account():
-    """Create an Account"""
+    """Create a new account"""
+    global next_id
 
     data = request.get_json()
+    account = {
+        "id": next_id,
+        "name": data.get("name"),
+        "email": data.get("email"),
+        "address": data.get("address"),
+    }
 
-    account = Account()
-    account.deserialize(data)
-    account.create()
+    accounts[next_id] = account
+    next_id += 1
 
-    return jsonify(account.serialize()), 201
+    return jsonify(account), 201
 
 
 @app.route("/accounts", methods=["GET"])
 def list_accounts():
-    """List all Accounts"""
-
-    accounts = Account.all()
-    results = [account.serialize() for account in accounts]
-
-    return jsonify(results), 200
+    """List all accounts"""
+    return jsonify(list(accounts.values())), 200
 
 
 @app.route("/accounts/<int:account_id>", methods=["GET"])
 def get_account(account_id):
-    """Get an Account by ID"""
-
-    account = Account.find(account_id)
+    """Get a single account"""
+    account = accounts.get(account_id)
 
     if not account:
-        return jsonify({"message": "Account not found"}), 404
+        return jsonify({"error": "Account not found"}), 404
 
-    return jsonify(account.serialize()), 200
+    return jsonify(account), 200
 
 
 @app.route("/accounts/<int:account_id>", methods=["PUT"])
 def update_account(account_id):
-    """Update an existing Account"""
-
-    account = Account.find(account_id)
+    """Update an account"""
+    account = accounts.get(account_id)
 
     if not account:
-        return jsonify({"message": "Account not found"}), 404
+        return jsonify({"error": "Account not found"}), 404
 
     data = request.get_json()
 
-    account.deserialize(data)
-    account.id = account_id
-    account.update()
+    account["name"] = data.get("name", account["name"])
+    account["email"] = data.get("email", account["email"])
+    account["address"] = data.get("address", account["address"])
 
-    return jsonify(account.serialize()), 200
+    return jsonify(account), 200
 
 
 @app.route("/accounts/<int:account_id>", methods=["DELETE"])
 def delete_account(account_id):
-    """Delete an Account"""
+    """Delete an account"""
+    if account_id not in accounts:
+        return jsonify({"error": "Account not found"}), 404
 
-    account = Account.find(account_id)
+    del accounts[account_id]
 
-    if not account:
-        return jsonify({"message": "Account not found"}), 404
+    return jsonify({"message": "Account deleted successfully"}), 200
 
-    account.delete()
-
-    return "", 204
-
-
-######################################################################
-# MAIN PROGRAM
-######################################################################
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
