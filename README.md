@@ -1,3 +1,3 @@
 evops-capstone-project
 
-coursera final project
+Proyek pengembangan microservice akun pelanggan
