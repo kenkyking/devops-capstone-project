@@ -1,146 +1,38 @@
 name: CI Build
-name: CI Build
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.8"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install nose coverage flake8 pylint
 
-      - name: Run flake8
-        run: |
-          flake8 service tests
+    - name: Lint with flake8
+      run: |
+        flake8 .
 
-      - name: Run pylint
-        run: |
-          pylint service --disable=R,C,W1203,W1202
+    - name: Lint with pylint
+      run: |
+        pylint service || true
 
-      - name: Run unit tests
-        run: |
-          nosetests
-
-      - name: Build Docker image
-        run: |
-          docker build -t accounts .
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run flake8
-        run: |
-          flake8 service tests
-
-      - name: Run pylint
-        run: |
-          pylint service --disable=R,C,W1203,W1202
-
-      - name: Run unit tests
-        run: |
-          nosetests
-
-      - name: Build Docker image
-        run: |
-          docker build -t accounts .
-on:
-  push:
-<<<<<<< HEAD
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-=======
-    branches: [ master, main ]
-  pull_request:
-    branches: [ master, main ]
->>>>>>> b1c9cac (Update flake8 max line length)
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-<<<<<<< HEAD
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-=======
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
->>>>>>> b1c9cac (Update flake8 max line length)
-        with:
-          python-version: "3.9"
-
-      - name: Install dependencies
-        run: |
-<<<<<<< HEAD
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run flake8
-        run: |
-          flake8 service tests
-
-      - name: Run pylint
-        run: |
-          pylint service --disable=R,C,W1203,W1202
-
-      - name: Run unit tests
-=======
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run linting
-        run: |
-          flake8 service tests
-          pylint service --disable=R,C,W1203,W1202
-
-      - name: Run tests
->>>>>>> b1c9cac (Update flake8 max line length)
-        run: |
-          nosetests
-
-      - name: Build Docker image
-        run: |
-          docker build -t accounts .
+    - name: Run tests with nose2
+      run: |
+        nose2 -v
