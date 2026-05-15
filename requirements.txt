@@ -1,6 +1,8 @@
 flask
-nose2
+nose
+flask-talisman
+flask-cors
 coverage
 flake8
 pylint
-flask-cors
+gunicorn
