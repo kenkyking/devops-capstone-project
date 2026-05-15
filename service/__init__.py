@@ -1,10 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_talisman import Talisman
 
 
 def create_app():
     """Create and configure the Flask app"""
     app = Flask(__name__)
+
+    talisman = Talisman(app)
 
     CORS(app)
 
