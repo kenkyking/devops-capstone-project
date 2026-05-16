@@ -6,6 +6,7 @@ if not hasattr(collections, 'Callable'):
 
 from service import app, routes
 
+
 class TestAccountService(unittest.TestCase):
     def setUp(self):
         # Reset the database before each test

@@ -1,9 +1,13 @@
+"""Routes for the accounts service"""
+# pylint: disable=cyclic-import, global-statement, invalid-name
+
 from flask import jsonify, request
 from service import app
 
 # In-memory database
 accounts = {}
 next_id = 1
+
 
 @app.route("/accounts", methods=["POST"])
 def create_account():
@@ -23,10 +27,12 @@ def create_account():
 
     return jsonify(account), 201
 
+
 @app.route("/accounts", methods=["GET"])
 def list_accounts():
     """List all accounts"""
     return jsonify(list(accounts.values())), 200
+
 
 @app.route("/accounts/<int:account_id>", methods=["GET"])
 def get_account(account_id):
@@ -37,6 +43,7 @@ def get_account(account_id):
         return jsonify({"error": "Account not found"}), 404
 
     return jsonify(account), 200
+
 
 @app.route("/accounts/<int:account_id>", methods=["PUT"])
 def update_account(account_id):
@@ -53,6 +60,7 @@ def update_account(account_id):
     account["address"] = data.get("address", account["address"])
 
     return jsonify(account), 200
+
 
 @app.route("/accounts/<int:account_id>", methods=["DELETE"])
 def delete_account(account_id):

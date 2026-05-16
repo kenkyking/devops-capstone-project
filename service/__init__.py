@@ -6,6 +6,7 @@ app = Flask(__name__)
 talisman = Talisman(app)
 CORS(app)
 
+
 @app.after_request
 def set_security_headers(response):
     """Set security headers"""
@@ -14,5 +15,6 @@ def set_security_headers(response):
     response.headers["Content-Security-Policy"] = "default-src 'self'"
     return response
 
+
 # Import routes after app is created to avoid circular imports
-from service import routes
+from service import routes  # noqa: E402, F401  # pylint: disable=wrong-import-position
